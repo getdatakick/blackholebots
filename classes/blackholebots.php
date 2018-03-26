@@ -109,7 +109,7 @@ class BlackholeBotsCore extends \Module {
     $uri = Utils::sanitize($_SERVER['REQUEST_URI']);
     $path = explode('?', $uri)[0];
     $path = rtrim($path, '/') . '/';
-    return (strpos($uri, $this->getTrapUrl()) !== false);
+    return (strpos($path, $this->getTrapUrl()) !== false);
   }
 
   // business logic

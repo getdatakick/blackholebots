@@ -1,0 +1,5 @@
+Bad Bot Alert:
+
+IP: {ip},
+WHOIS:
+{whois}

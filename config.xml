@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>blackholebots</name>
+	<displayName><![CDATA[Blackhole for Bad Bots]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[Automagically ban bad bots who don't follow robots.txt guidelines]]></description>
+	<author><![CDATA[DataKick]]></author>
+	<tab><![CDATA[export]]></tab>
+	<is_configurable>0</is_configurable>
+	<need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>

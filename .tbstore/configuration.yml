@@ -1,0 +1,18 @@
+module_name: Blackhole for Bad Bots
+compatible_versions: 1.0.0+
+author: datakick
+category: front office
+tags:
+  - security
+description_short: Automagically ban bad bots who don't follow robots.txt instructions
+description: description.md
+images:
+  - image-cover.png
+  - image-1.png
+license: MIT
+php_version:
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+  - 7.1

@@ -19,11 +19,12 @@ from your site again.
 
 1. edit ```robots.txt``` file in the root directory
 
-Before you install this module, you need to edit your ```robots.txt``` file, and add following two lines
+Before you install this module, you need to edit your ```robots.txt``` file, and add following three lines
 
 ```
 User-agent: *
 Disallow: /blackhole/
+Disallow: /modules/blackholebots/blackhole/
 ```
 
 2. install module

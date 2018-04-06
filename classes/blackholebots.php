@@ -26,7 +26,7 @@ class BlackholeBotsCore extends \Module {
   public function __construct() {
     $this->name = 'blackholebots';
     $this->tab = 'export';
-    $this->version = '1.0.0';
+    $this->version = '1.0.1';
     $this->author = 'DataKick';
     $this->need_instance = 0;
     $this->bootstrap = true;
@@ -42,6 +42,7 @@ class BlackholeBotsCore extends \Module {
       parent::install() &&
       $this->installDb($createTables) &&
       $this->registerHook('displayHeader') &&
+      $this->registerHook('moduleRoutes') &&
       $this->registerHook('displayFooter')
     );
   }
@@ -51,6 +52,7 @@ class BlackholeBotsCore extends \Module {
       $this->uninstallDb($dropTables) &&
       $this->unregisterHook('displayHeader') &&
       $this->unregisterHook('displayFooter') &&
+      $this->unregisterHook('moduleRoutes') &&
       parent::uninstall()
     );
   }
@@ -102,37 +104,24 @@ class BlackholeBotsCore extends \Module {
   }
 
   private function getTrapUrl() {
-    return '/blackhole/';
+    $prefix = (int)Configuration::get('PS_REWRITING_SETTINGS') ? '' : rtrim($this->_path, '/');
+    return $prefix . '/blackhole/';
   }
 
-  private function isInTrap() {
-    $uri = Utils::sanitize($_SERVER['REQUEST_URI']);
-    $path = explode('?', $uri)[0];
-    $path = rtrim($path, '/') . '/';
-    return (strpos($path, $this->getTrapUrl()) !== false);
-  }
-
-  // business logic
-  public function hookDisplayHeader($params) {
+  public function trap() {
     $ip = IPAddress::get();
     if ($ip->isValid()) {
-      if ($this->isInTrap()) {
+      $whois = Whois::getInfo($ip);
+      if (! BlackholeBlacklist::inBlacklist($ip)) {
         BlackholeBlacklist::trap($ip);
-        $whois = Whois::getInfo($ip);
         $this->sendEmail($ip, $whois);
-        $this->forbidden($ip, $whois);
-      } else if (BlackholeBlacklist::inBlacklist($ip)) {
-        $this->forbidden($ip, Whois::getInfo($ip));
       }
+      $this->forbidden($ip, $whois);
     }
   }
 
-  public function hookDisplayFooter() {
-    return '<div style="display:none"><a rel="nofollow" href="'.$this->getTrapUrl().'">Do NOT follow this link or you will be banned from the site!</a></div>';
-  }
-
   private function sendEmail(IPAddress $ip, $whois) {
-    $lang = 1;
+    $lang = (int)Configuration::get('PS_LANG_DEFAULT');
     $email = Configuration::get('PS_SHOP_EMAIL');
     $data = [
       '{ip}' => $ip->getAddress(),
@@ -142,7 +131,37 @@ class BlackholeBotsCore extends \Module {
     Mail::Send($lang, 'blackhole', Mail::l('Bad Bot Alert!', $lang), $data, $email, null, null, null, null, null, $dir, false);
   }
 
-  private function forbidden(IPAddress $ip, $whois) {
+  // business logic
+  public function hookDisplayHeader($params) {
+    $ip = IPAddress::get();
+    if ($ip->isValid() && BlackholeBlacklist::inBlacklist($ip)) {
+      $this->forbidden($ip, Whois::getInfo($ip));
+    }
+  }
+
+  public function hookDisplayFooter() {
+    return '<div style="display:none"><a rel="nofollow" href="'.$this->getTrapUrl().'">Do NOT follow this link or you will be banned from the site!</a></div>';
+  }
+
+
+  public function hookModuleRoutes($params) {
+    return [
+      'blackholebots' => [
+        'controller' => 'blackhole',
+        'rule' => 'blackhole{whatever}',
+        'keywords' => [
+          'whatever' => ['regexp' => '.*', 'param' => 'whatever'],
+        ],
+        'params' => [
+          'fc' => 'module',
+          'module' => 'blackholebots',
+          'controller' => 'blackhole'
+        ]
+      ]
+    ];
+  }
+
+  public function forbidden(IPAddress $ip, $whois) {
     header('HTTP/1.0 403 Forbidden');
     $this->context->smarty->assign([
       'css' => $this->_path . '/views/css/blackhole.css',

@@ -109,6 +109,11 @@ class BlackholeBotsCore extends \Module {
   }
 
   public function trap() {
+    $ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : "";
+    if (self::whitelisted($ua)) {
+      return;
+    }
+
     $ip = IPAddress::get();
     if ($ip->isValid()) {
       $whois = Whois::getInfo($ip);
@@ -118,6 +123,10 @@ class BlackholeBotsCore extends \Module {
       }
       $this->forbidden($ip, $whois);
     }
+  }
+
+  private static function whitelisted($ua) {
+    return preg_match("/(aolbuild|baidu|bingbot|bingpreview|msnbot|duckduckgo|adsbot-google|googlebot|mediapartners-google|teoma|slurp|yandex)/i", $ua);
   }
 
   private function sendEmail(IPAddress $ip, $whois) {

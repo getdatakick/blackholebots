@@ -26,7 +26,7 @@ class BlackholeBotsCore extends \Module {
   public function __construct() {
     $this->name = 'blackholebots';
     $this->tab = 'export';
-    $this->version = '1.0.1';
+    $this->version = '1.0.2';
     $this->author = 'DataKick';
     $this->need_instance = 0;
     $this->bootstrap = true;

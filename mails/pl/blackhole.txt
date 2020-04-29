@@ -1,0 +1,5 @@
+Powiadomienie z modułu Czarna dziura dla niedobrych botów!
+
+Adres IP: {ip};
+Informacja WHOIS:
+{whois}
